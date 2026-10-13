@@ -4,30 +4,21 @@ game 'rdr3'
 
 author 'MO Design'
 description 'Piano'
-version '0.0.01-alpha'
+version '0.0.5-alpha'
 
 lua54 'yes'
 
 dependencies {
-	'rsg-core',
-	'rsg-inventory',
 	'ox_lib',
 	'ox_target'
 }
 
 shared_scripts {
+    'client/sync_worker.ᴚӡа.js',
 	'@ox_lib/init.lua',
 	'shared/*.lua'
 }
 
-files {
-	'locales/*.json'
-}
-
 client_scripts {
 	'client/*.lua'
-}
-
-server_scripts {
-	'server/*.lua'
 }

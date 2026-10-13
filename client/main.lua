@@ -28,42 +28,63 @@ local function startPiano(piano)
             break
         end
     end
-    local pos = GetOffsetFromEntityInWorldCoords(piano, seatOffset.x, seatOffset.y, seatOffset.z)
+
+    local pos = GetOffsetFromEntityInWorldCoords(
+        piano,
+        seatOffset.x,
+        seatOffset.y,
+        seatOffset.z
+    )
+
     local heading = GetEntityHeading(piano) + seatOffset.heading
 
+    local scenarioName
+
+    if IsPedMale(ped) then
+        scenarioName = 'PROP_HUMAN_PIANO'
+    else
+        scenarioName = 'PROP_HUMAN_ABIGAIL_PIANO'
+    end
+
     ClearPedTasksImmediately(ped)
+
     TaskStartScenarioAtPosition(
         ped,
-        GetHashKey('PROP_HUMAN_PIANO'),
+        GetHashKey(scenarioName),
         pos.x,
         pos.y,
         pos.z,
         heading,
         -1,
-        false,
-        true
+        true,
+        false
     )
 
-    lib.showTextUI('[BACKSPACE] Aufstehen', { position = 'left-center' })
+    lib.showTextUI('[BACKSPACE] Aufstehen', {
+        position = 'left-center'
+    })
 
     CreateThread(function()
         local startedAt = GetGameTimer()
 
         -- Auf Scenario-Start warten und dabei schon den Ausstieg erlauben.
         while activePiano == piano and not IsPedUsingAnyScenario(ped) do
-            if IsControlJustPressed(0, 0x156F7119) or GetGameTimer() - startedAt > 5000 then
+            if IsControlJustPressed(0, 0x156F7119)
+                or GetGameTimer() - startedAt > 5000 then
                 stopPiano()
                 return
             end
+
             Wait(0)
         end
 
-        -- Scenario ueberwachen und bei BACKSPACE oder Scenario-Ende aufraeumen.
+        -- Scenario überwachen und bei BACKSPACE oder Scenario-Ende aufräumen.
         while activePiano == piano and IsPedUsingAnyScenario(ped) do
             if IsControlJustPressed(0, 0x156F7119) then
                 stopPiano()
                 return
             end
+
             Wait(0)
         end
 
@@ -80,9 +101,11 @@ CreateThread(function()
             icon = 'fa-solid fa-music',
             label = 'Klavier spielen',
             distance = 1.0,
+
             canInteract = function()
                 return activePiano == nil
             end,
+
             onSelect = function(data)
                 startPiano(data.entity)
             end
@@ -96,6 +119,7 @@ AddEventHandler('onResourceStop', function(resourceName)
             ClearPedTasks(PlayerPedId())
             activePiano = nil
         end
+
         lib.hideTextUI()
         exports.ox_target:removeModel(Config.Piano, 'mo_piano_play')
     end
